@@ -25,6 +25,8 @@ func Run(port string) {
 
 	http.HandleFunc("/api/register", registerAccount)
 	http.HandleFunc("/api/login", login)
+	http.HandleFunc("/api/miners", serveMiners)
+	http.HandleFunc("/api/miners/count", serveMinersCount)
 
 	log.Printf("localhost:%s", port)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil); err != nil {

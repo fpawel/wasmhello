@@ -2,7 +2,7 @@ package ui
 
 import (
 	"fmt"
-	"github.com/fpawel/wasmhello/internal/jsutils"
+	"github.com/fpawel/wasmhello/internal/js"
 	"github.com/fpawel/wasmhello/internal/ui/components/home"
 	"github.com/fpawel/wasmhello/internal/ui/components/login"
 	"github.com/fpawel/wasmhello/internal/ui/components/regacc"
@@ -21,7 +21,7 @@ func New() *App {
 }
 
 func getBaseRoute() Route {
-	locHash := jsutils.LocationHash()
+	locHash := js.LocationHash()
 	parts := strings.Split(locHash, "/")
 	if len(parts) == 0 || parts[0] == "#" {
 		return RouteHome
@@ -59,5 +59,5 @@ func (x *App) Render() app.UI {
 
 func (x *App) OnNav(ctx app.Context) {
 	fmt.Println("OnNav")
-	x.Update()
+	//x.Update()
 }

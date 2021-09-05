@@ -1,11 +1,11 @@
 GOCMD=/home/fpawel/sdk/go1.16.5/bin/go
 
-build-client:
+client:
 	GOARCH=wasm GOOS=js GOARCH=wasm GOOS=js $(GOCMD) build -o web/app.wasm
 
-build:
+server:
 	GOARCH=wasm GOOS=js GOARCH=wasm GOOS=js $(GOCMD) build -o web/app.wasm
 	$(GOCMD) build
 
-run: build
-	./wasmhello
+run: client server
+	./wasmhello 8001

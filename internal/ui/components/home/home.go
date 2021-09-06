@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type Compo struct {
@@ -54,6 +55,23 @@ func (l *Compo) OnMount(ctx app.Context) {
 	l.fetchMiners(ctx)
 }
 
+func (l *Compo) OnNav(ctx app.Context) {
+	pages := l.getPages()
+	fmt.Println("click pages:", pages)
+
+	l.minersPage = 0
+
+	locHash := js.LocationHash()
+	parts := strings.Split(locHash, "/")
+	if len(parts) > 2 && parts[1] == "page" {
+		l.minersPage, _ = strconv.Atoi(parts[2])
+	}
+	if l.minersPage < 0 {
+		l.minersPage = 0
+	}
+	l.fetchMiners(ctx)
+}
+
 func (l *Compo) getPages() []int {
 
 	n := l.minersPage
@@ -91,9 +109,56 @@ func (l *Compo) getPages() []int {
 	return xs
 }
 
-func (l *Compo) tableNavigation() app.UI {
+type pageNav struct {
+	page        int
+	currentPage int
+	first       bool
+	last        bool
+}
 
-	locHash := js.LocationHash()
+func (x pageNav) render() app.HTMLLi {
+	link := app.A().Class("page-link").Href(fmt.Sprintf("#home/page/%d", x.page))
+	span := app.Span()
+	item := app.Li().
+		Style("width", "44px").
+		Class("page-item")
+	currentPage := x.page == x.currentPage
+	disabled := false
+	pageLinkAdd := true
+
+	if x.last {
+		span = span.Text("»»")
+		if currentPage {
+			disabled = true
+		}
+	} else if x.first {
+		span = span.Text("««")
+		if currentPage {
+			disabled = true
+		}
+	} else if x.page == -1 {
+		span = span.Text("...")
+		disabled = true
+	} else {
+		if currentPage {
+			item = item.Class("active").Aria("current", "page")
+			pageLinkAdd = false
+		}
+		span = app.Span().Text(x.page + 1)
+	}
+	if disabled {
+		link = link.Aria("disabled", "true")
+		item = item.Class("disabled")
+	}
+	if pageLinkAdd {
+		link = link.Class("page-link-add")
+	}
+
+	return item.Body(link.Body(span))
+
+}
+
+func (l *Compo) tableNavigation() app.UI {
 	pages := l.getPages()
 	fmt.Println("render Pages:", pages)
 	return app.Nav().
@@ -102,64 +167,22 @@ func (l *Compo) tableNavigation() app.UI {
 			app.Ul().
 				Class("pagination justify-content-end").
 				Body(
-					app.Li().Style("width", "44px").
-						Class("page-item").
-						Body(
-							app.A().
-								Class("page-link page-link-add").Aria("label", "Previous").
-								Href(locHash).
-								Body(
-									app.Span().Aria("hidden", "true").Text("««"),
-								),
-						).OnClick(func(ctx app.Context, e app.Event) {
-						l.minersPage = 0
-						l.fetchMiners(ctx)
-					}),
+					pageNav{
+						first:       true,
+						page:        0,
+						currentPage: l.minersPage,
+					}.render(),
 					app.Range(pages).Slice(func(i int) app.UI {
-						link := app.A().
-							Class("page-link").
-							Href(fmt.Sprintf("#home/page/%d", pages[i])).
-							Body(
-								app.Span().Text(pages[i]),
-							)
-						if pages[i] == -1 {
-							link = link.Aria("disabled", "true").Text("...")
-							link = link.Class("page-link-add")
-						}
-						ret := app.Li().Style("width", "44px").
-							Class("page-item").
-							Aria("current", "page")
-						if pages[i] == -1 {
-							link = link.Class("page-link-add")
-							ret = ret.Class("disabled")
-						} else if pages[i] == l.minersPage {
-							ret = ret.Class("active")
-						} else {
-							link = link.Class("page-link-add")
-							ret = ret.OnClick(func(ctx app.Context, e app.Event) {
-								fmt.Println("click pages:", l.getPages())
-								l.minersPage = l.getPages()[i]
-								l.fetchMiners(ctx)
-							})
-						}
-
-						ret = ret.Body(link)
-
-						return ret
+						return pageNav{
+							page:        pages[i],
+							currentPage: l.minersPage,
+						}.render()
 					}),
-					app.Li().Style("width", "44px").
-						Class("page-item").
-						Body(
-							app.A().
-								Class("page-link page-link-add").Aria("label", "Next").
-								Href(locHash).
-								Body(
-									app.Span().Aria("hidden", "true").Text("»»"),
-								),
-						).OnClick(func(ctx app.Context, e app.Event) {
-						l.minersPage = l.minersCount/minersRowsCount - 1
-						l.fetchMiners(ctx)
-					}),
+					pageNav{
+						last:        true,
+						page:        l.minersCount/minersRowsCount - 1,
+						currentPage: l.minersPage,
+					}.render(),
 				))
 }
 

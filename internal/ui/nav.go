@@ -2,39 +2,10 @@ package ui
 
 import (
 	"github.com/fpawel/wasmhello/internal/components/bs"
+	"github.com/fpawel/wasmhello/internal/js"
 	"github.com/fpawel/wasmhello/internal/ui/uinfo"
 	"github.com/maxence-charriere/go-app/v8/pkg/app"
 )
-
-type Profile struct {
-	app.Compo
-}
-
-func (x *Profile) OnMount(ctx app.Context) {
-	if !uinfo.LoggedIn() {
-		ctx.Navigate("/#home")
-	}
-}
-
-func (x *Profile) Render() app.UI {
-	return app.Div().Body(
-		app.H3().Class("jumbotron").Text("Miners page not implemented"),
-		app.If(
-			uinfo.LoggedIn(),
-			app.H4().Text("Account:"),
-			app.H5().Text(uinfo.AccPass().Account),
-			app.H4().Text("Password"),
-			app.H5().Text(uinfo.AccPass().Password),
-			app.Button().
-				Class("btn btn-primary").ID("button-addon2").
-				Type("button").
-				Body(app.Text("Logout")).
-				OnClick(func(ctx app.Context, e app.Event) {
-					uinfo.Logout()
-				}),
-		),
-	)
-}
 
 type Route string
 
@@ -43,7 +14,6 @@ const (
 	RouteProfile = "#profile"
 	RouteRegAcc  = "#regacc"
 	RouteLogin   = "#login"
-	RouteLogout  = "#logout"
 )
 
 func navBarItem(itemRoute Route, text string, icon string) app.UI {
@@ -57,7 +27,9 @@ func navBarItem(itemRoute Route, text string, icon string) app.UI {
 		),
 		app.Text(text),
 	)
-	if itemRoute == appRoute || (appRoute == "#" || appRoute == "") && itemRoute == RouteHome {
+	if string(itemRoute) == js.LocationHash() ||
+		itemRoute == appRoute ||
+		(appRoute == "#" || appRoute == "") && itemRoute == RouteHome {
 		a = a.Aria("current", "page").Class("active")
 	}
 
@@ -79,6 +51,9 @@ func (x *navBar) Render() app.UI {
 			app.Div().Class("collapse navbar-collapse").ID(idNavbarNavAltMarkup).Body(
 				app.Div().Class("navbar-nav").Body(
 					navBarItem(RouteHome, "Miners", ""),
+				),
+				app.Div().Class("navbar-nav").Body(
+					navBarItem("#doc/readme.md", "About", ""),
 				),
 				app.Div().Class("nav-item flex-fill").Body(),
 

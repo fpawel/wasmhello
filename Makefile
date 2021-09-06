@@ -1,11 +1,18 @@
-GOCMD=/home/fpawel/sdk/go1.16.5/bin/go
+BUILD_DIR=./build
+APP_BINARY=$(BUILD_DIR)/app
+SRC_DIR=./cmd/app
+MAIN_SRC=$(SRC_DIR)/main.go
 
-client:
-	GOARCH=wasm GOOS=js GOARCH=wasm GOOS=js $(GOCMD) build -o web/app.wasm
+clean:
+	rm -fr $(BUILD_DIR) || true
+	mkdir $(BUILD_DIR)
+	cp -r ./web $(BUILD_DIR)
 
-server:
-	GOARCH=wasm GOOS=js GOARCH=wasm GOOS=js $(GOCMD) build -o web/app.wasm
-	$(GOCMD) build
+build-client: clean
+	GOARCH=wasm GOOS=js GOARCH=wasm GOOS=js $(GOCMD) build -o $(BUILD_DIR)/web/app.wasm $(MAIN_SRC)
 
-run: client server
-	./wasmhello 8001
+build-server: build-client
+	$(GOCMD) build -o $(APP_BINARY) $(MAIN_SRC)
+
+run: build-server
+	cd $(BUILD_DIR)	&& ./app $(APP_PORT)

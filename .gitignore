@@ -1,3 +1,2 @@
 .idea
-web/app.wasm
-web/client_js
+build

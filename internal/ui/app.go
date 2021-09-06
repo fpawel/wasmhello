@@ -5,9 +5,11 @@ import (
 	"github.com/fpawel/wasmhello/internal/js"
 	"github.com/fpawel/wasmhello/internal/ui/components/home"
 	"github.com/fpawel/wasmhello/internal/ui/components/login"
+	"github.com/fpawel/wasmhello/internal/ui/components/profile"
 	"github.com/fpawel/wasmhello/internal/ui/components/regacc"
 	"github.com/fpawel/wasmhello/internal/ui/uinfo"
 	"github.com/maxence-charriere/go-app/v8/pkg/app"
+	"path/filepath"
 	"strings"
 )
 
@@ -41,13 +43,23 @@ func (x *App) OnDismount(ctx app.Context) {
 
 func (x *App) Render() app.UI {
 	var comp app.UI = &home.Compo{}
-	switch getBaseRoute() {
-	case RouteProfile:
-		comp = &Profile{}
-	case RouteRegAcc:
-		comp = regacc.New()
-	case RouteLogin:
-		comp = login.New()
+
+	locHash := js.LocationHash()
+	if filepath.Ext(locHash) == ".md" {
+		path := locHash
+		if path[0] == '#' {
+			path = path[1:]
+		}
+		comp = renderMD(path)
+	} else {
+		switch getBaseRoute() {
+		case RouteProfile:
+			comp = &profile.Compo{}
+		case RouteRegAcc:
+			comp = regacc.New()
+		case RouteLogin:
+			comp = login.New()
+		}
 	}
 	return app.Section().Body(
 		&navBar{},

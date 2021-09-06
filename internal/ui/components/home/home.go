@@ -40,7 +40,7 @@ func (l *Compo) fetchMiners(ctx app.Context) {
 		fmt.Println("fetchMiners:", err)
 		return
 	}
-	fmt.Println("got miners", len(miners))
+	fmt.Println("got miners", from, to, len(miners))
 	l.miners = miners
 	l.minersCount = minersCount
 	ctx.Async(func() {
@@ -100,13 +100,13 @@ func (l *Compo) tableNavigation() app.UI {
 		Aria("label", "Table navigation").
 		Body(
 			app.Ul().
-				Class("pagination").
+				Class("pagination justify-content-end").
 				Body(
 					app.Li().Style("width", "44px").
 						Class("page-item").
 						Body(
 							app.A().
-								Class("page-link").Aria("label", "Previous").
+								Class("page-link page-link-add").Aria("label", "Previous").
 								Href(locHash).
 								Body(
 									app.Span().Aria("hidden", "true").Text("««"),
@@ -124,16 +124,18 @@ func (l *Compo) tableNavigation() app.UI {
 							)
 						if pages[i] == -1 {
 							link = link.Aria("disabled", "true").Text("...")
+							link = link.Class("page-link-add")
 						}
 						ret := app.Li().Style("width", "44px").
 							Class("page-item").
-							Aria("current", "page").
-							Body(link)
+							Aria("current", "page")
 						if pages[i] == -1 {
+							link = link.Class("page-link-add")
 							ret = ret.Class("disabled")
 						} else if pages[i] == l.minersPage {
 							ret = ret.Class("active")
 						} else {
+							link = link.Class("page-link-add")
 							ret = ret.OnClick(func(ctx app.Context, e app.Event) {
 								fmt.Println("click pages:", l.getPages())
 								l.minersPage = l.getPages()[i]
@@ -141,13 +143,15 @@ func (l *Compo) tableNavigation() app.UI {
 							})
 						}
 
+						ret = ret.Body(link)
+
 						return ret
 					}),
 					app.Li().Style("width", "44px").
 						Class("page-item").
 						Body(
 							app.A().
-								Class("page-link").Aria("label", "Next").
+								Class("page-link page-link-add").Aria("label", "Next").
 								Href(locHash).
 								Body(
 									app.Span().Aria("hidden", "true").Text("»»"),
@@ -167,19 +171,26 @@ func (l *Compo) Render() app.UI {
 		app.Div().Class("jumbotron").Body(
 			app.H3().Text("Miners page not implemented"),
 		),
-		l.tableNavigation(),
 		app.Table().
 			Class("table dark-theme").Style("padding", "0.5rem 0.5rem").
 			Body(
-				app.THead().Body(
-					app.Tr().Body(
-						app.Th().Scope("col").Text("name"),
-						app.Th().Scope("col").Text("terra-bytes"),
-						app.Th().Scope("col").Text("commit"),
-						app.Th().Scope("col").Text("factor"),
-						app.Th().Scope("col").Text("contributors"),
+				app.THead().
+					Body(
+						app.Tr().Style("background", "#36393f").
+							Style("z-index", "1").
+							Style("position", "sticky").
+							Style("top", "50px").Body(
+							app.Td().ColSpan(5).
+								Body(l.tableNavigation()),
+						),
+						app.Tr().Body(
+							app.Th().Scope("col").Text("name"),
+							app.Th().Scope("col").Text("terra-bytes"),
+							app.Th().Scope("col").Text("commit"),
+							app.Th().Scope("col").Text("factor"),
+							app.Th().Scope("col").Text("contributors"),
+						),
 					),
-				),
 				app.TBody().Body(
 					app.Range(l.miners).Slice(func(i int) app.UI {
 						m := l.miners[i]

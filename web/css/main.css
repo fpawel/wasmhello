@@ -19,3 +19,10 @@ body {
     background-color: #36393f !important;
     color: #cfd0d1 !important;
 }
+
+.page-link-add {
+    background-color: #262629 !important;
+    border-color: #18191c !important;
+    color: hsla(0,0%,100%,.6) !important;
+    transition: color .3s !important;
+}

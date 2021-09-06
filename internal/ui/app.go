@@ -49,7 +49,7 @@ func (x *App) Render() app.UI {
 	case RouteLogin:
 		comp = login.New()
 	}
-	return app.Div().Body(
+	return app.Section().Body(
 		&navBar{},
 		app.Div().Class("container").
 			Style("margin-top", "60px").

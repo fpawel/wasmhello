@@ -3,7 +3,7 @@ package ui
 import (
 	"fmt"
 	"github.com/fpawel/wasmhello/internal/js"
-	"github.com/maxence-charriere/go-app/v8/pkg/app"
+	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"github.com/russross/blackfriday/v2"
 	"io"
 	"net/http"

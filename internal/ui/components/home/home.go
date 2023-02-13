@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/fpawel/wasmhello/internal/js"
 	"github.com/fpawel/wasmhello/internal/server/datatype"
-	"github.com/maxence-charriere/go-app/v8/pkg/app"
+	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"io"
 	"net/http"
 	"net/url"

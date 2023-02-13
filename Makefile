@@ -9,10 +9,10 @@ clean:
 	cp -r ./web $(BUILD_DIR)
 
 build-client: clean
-	GOARCH=wasm GOOS=js GOARCH=wasm GOOS=js $(GOCMD) build -o $(BUILD_DIR)/web/app.wasm $(MAIN_SRC)
+	GOARCH=wasm GOOS=js GOARCH=wasm GOOS=js go build -o $(BUILD_DIR)/web/app.wasm $(MAIN_SRC)
 
 build-server: build-client
-	$(GOCMD) build -o $(APP_BINARY) $(MAIN_SRC)
+	go build -o $(APP_BINARY) $(MAIN_SRC)
 
 run: build-server
 	cd $(BUILD_DIR)	&& ./app $(APP_PORT)

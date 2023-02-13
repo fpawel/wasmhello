@@ -3,7 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/fpawel/wasmhello/internal/ui"
-	"github.com/maxence-charriere/go-app/v8/pkg/app"
+	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"log"
 	"net/http"
 )
@@ -28,7 +28,7 @@ func Run(port string) {
 	http.HandleFunc("/api/miners", serveMiners)
 	http.HandleFunc("/api/miners/count", serveMinersCount)
 
-	log.Printf("localhost:%s", port)
+	log.Printf("http://127.0.0.1:%s", port)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil); err != nil {
 		log.Fatal(err)
 	}

@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/fpawel/wasmhello/internal/ui/uinfo"
-	"github.com/maxence-charriere/go-app/v8/pkg/app"
+	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"io"
 	"net/http"
 	"strings"
@@ -40,7 +40,8 @@ func (x *Compo) Render() app.UI {
 							Class("form-control").
 							Placeholder("The name of the account to register").
 							OnChange(func(ctx app.Context, e app.Event) {
-								x.input = ctx.JSSrc.Get("value").String()
+								fmt.Println(ctx.JSSrc().Get("value"))
+								x.input = ctx.JSSrc().Get("value").String()
 							}),
 					),
 				app.Div().Class("d-flex flex-row-reverse").

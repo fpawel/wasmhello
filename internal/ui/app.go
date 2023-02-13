@@ -8,7 +8,7 @@ import (
 	"github.com/fpawel/wasmhello/internal/ui/components/profile"
 	"github.com/fpawel/wasmhello/internal/ui/components/regacc"
 	"github.com/fpawel/wasmhello/internal/ui/uinfo"
-	"github.com/maxence-charriere/go-app/v8/pkg/app"
+	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"path/filepath"
 	"strings"
 )

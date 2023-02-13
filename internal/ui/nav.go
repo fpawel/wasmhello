@@ -4,7 +4,7 @@ import (
 	"github.com/fpawel/wasmhello/internal/components/bs"
 	"github.com/fpawel/wasmhello/internal/js"
 	"github.com/fpawel/wasmhello/internal/ui/uinfo"
-	"github.com/maxence-charriere/go-app/v8/pkg/app"
+	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
 type Route string

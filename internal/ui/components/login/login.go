@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/fpawel/wasmhello/internal/server/datatype"
 	"github.com/fpawel/wasmhello/internal/ui/uinfo"
-	"github.com/maxence-charriere/go-app/v8/pkg/app"
+	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"io"
 	"net/http"
 	"strings"
@@ -52,7 +52,8 @@ func (x *Compo) Render() app.UI {
 							Placeholder("The name of the account").
 							Value(x.input.Account).
 							OnChange(func(ctx app.Context, e app.Event) {
-								x.input.Account = ctx.JSSrc.Get("value").String()
+								fmt.Println(ctx.JSSrc().Get("value"))
+								x.input.Account = ctx.JSSrc().Get("value").String()
 							}),
 					),
 				app.Div().
@@ -65,7 +66,8 @@ func (x *Compo) Render() app.UI {
 							Placeholder("Password").
 							Value(x.input.Password).
 							OnChange(func(ctx app.Context, e app.Event) {
-								x.input.Password = ctx.JSSrc.Get("value").String()
+								fmt.Println(ctx.JSSrc().Get("value"))
+								x.input.Password = ctx.JSSrc().Get("value").String()
 							}),
 					),
 				app.Div().Class("d-flex flex-row-reverse").

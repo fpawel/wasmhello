@@ -2,7 +2,7 @@ package profile
 
 import (
 	"github.com/fpawel/wasmhello/internal/ui/uinfo"
-	"github.com/maxence-charriere/go-app/v8/pkg/app"
+	"github.com/maxence-charriere/go-app/v9/pkg/app"
 )
 
 type Compo struct {

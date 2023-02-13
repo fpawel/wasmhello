@@ -1,6 +1,6 @@
 # Build
 ```
-APP_PORT=<http port> GOCMD=<path to golang binary> make run 
+make run 
 ```
 - Example:
 ```

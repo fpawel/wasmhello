@@ -1,16 +1,17 @@
 package main
 
 import (
+	"github.com/alexflint/go-arg"
 	"github.com/fpawel/wasmhello/internal/server"
-	"os"
 )
 
-func main() {
-	port := defaultPort
-	if len(os.Args) > 1 {
-		port = os.Args[1]
-	}
-	server.Run(port)
+// Args аргументы процесса из переменных окружения
+type Args struct {
+	Port string `arg:"env:DEALER_LIFE_PORT" default:"8881" help:"The port this service will be run on"`
 }
 
-const defaultPort = "8001"
+func main() {
+	var args Args
+	arg.MustParse(&args)
+	server.Run(args.Port)
+}

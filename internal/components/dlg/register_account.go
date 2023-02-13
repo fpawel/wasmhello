@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/maxence-charriere/go-app/v8/pkg/app"
+	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"net/http"
 )
 
@@ -53,7 +53,8 @@ func (x *RegisterAccount) renderBody() app.UI {
 			Placeholder("The name of the account").
 			Aria("label", "Register account").
 			OnChange(func(ctx app.Context, e app.Event) {
-				x.input = ctx.JSSrc.Get("value").String()
+				fmt.Println(ctx.JSSrc().Get("value"))
+				x.input = ctx.JSSrc().Get("value").String()
 			}),
 	)
 }

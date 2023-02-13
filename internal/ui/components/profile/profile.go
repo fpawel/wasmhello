@@ -29,7 +29,8 @@ func (x *Compo) Render() app.UI {
 				Type("button").
 				Body(app.Text("Logout")).
 				OnClick(func(ctx app.Context, e app.Event) {
-					uinfo.Logout()
+					uinfo.RemoveToken()
+					ctx.Reload()
 				}),
 		),
 	)

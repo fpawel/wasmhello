@@ -52,7 +52,6 @@ func (x *Compo) Render() app.UI {
 							Placeholder("The name of the account").
 							Value(x.input.Account).
 							OnChange(func(ctx app.Context, e app.Event) {
-								fmt.Println(ctx.JSSrc().Get("value"))
 								x.input.Account = ctx.JSSrc().Get("value").String()
 							}),
 					),
@@ -66,7 +65,6 @@ func (x *Compo) Render() app.UI {
 							Placeholder("Password").
 							Value(x.input.Password).
 							OnChange(func(ctx app.Context, e app.Event) {
-								fmt.Println(ctx.JSSrc().Get("value"))
 								x.input.Password = ctx.JSSrc().Get("value").String()
 							}),
 					),
@@ -106,21 +104,18 @@ func (x *Compo) err() app.UI {
 }
 
 func (x *Compo) login(ctx app.Context, e app.Event) {
-
-	defer uinfo.AppUpdate()
-
 	x.input.Account = strings.TrimSpace(x.input.Account)
 	x.input.Password = strings.TrimSpace(x.input.Password)
 
 	if len(x.input.Account) == 0 {
 		x.error = new(error)
-		*x.error = errors.New("Please enter account")
+		*x.error = errors.New("please enter account")
 		return
 	}
 
 	if len(x.input.Password) == 0 {
 		x.error = new(error)
-		*x.error = errors.New("Please enter password")
+		*x.error = errors.New("please enter password")
 		return
 	}
 
@@ -150,6 +145,6 @@ func (x *Compo) login(ctx app.Context, e app.Event) {
 		*x.error = errors.New(response)
 	} else {
 		uinfo.SetToken(response)
+		ctx.Reload()
 	}
-
 }

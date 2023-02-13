@@ -7,7 +7,6 @@ import (
 	"github.com/fpawel/wasmhello/internal/ui/components/login"
 	"github.com/fpawel/wasmhello/internal/ui/components/profile"
 	"github.com/fpawel/wasmhello/internal/ui/components/regacc"
-	"github.com/fpawel/wasmhello/internal/ui/uinfo"
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"path/filepath"
 	"strings"
@@ -32,13 +31,11 @@ func getBaseRoute() Route {
 }
 
 func (x *App) OnMount(ctx app.Context) {
-	uinfo.AppUpdate = x.Update
+	//
 }
 
 func (x *App) OnDismount(ctx app.Context) {
-	uinfo.AppUpdate = func() {
-		fmt.Println("AppUpdate: dismounted")
-	}
+	//
 }
 
 func (x *App) Render() app.UI {

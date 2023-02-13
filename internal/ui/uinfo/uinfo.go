@@ -17,10 +17,6 @@ type Input struct {
 	Register datatype.AccPass
 }
 
-var AppUpdate = func() {
-	fmt.Println("AppUpdate: not set")
-}
-
 func Token() (token string) {
 	return app.Window().Get("localStorage").Call("getItem", tokenKey).String()
 }
@@ -35,7 +31,8 @@ func AccPass() datatype.AccPass {
 }
 
 func LoggedIn() bool {
-	return len(AccPass().Account) > 0
+	fmt.Println("LoggedIn:", AccPass())
+	return AccPass().Account != ""
 }
 
 func SetToken(token string) {
@@ -44,11 +41,6 @@ func SetToken(token string) {
 
 func RemoveToken() {
 	app.Window().Get("localStorage").Call("removeItem", tokenKey)
-}
-
-func Logout() {
-	RemoveToken()
-	AppUpdate()
 }
 
 func GetInput() (r Input) {

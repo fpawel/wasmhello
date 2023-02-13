@@ -86,9 +86,11 @@ func dropdownNavMenu() app.UI {
 		app.If(
 			uinfo.LoggedIn(),
 			app.Li().Body(app.A().Class("dropdown-item").Href("#").
-				Text("Logout").OnClick(func(ctx app.Context, e app.Event) {
-				uinfo.Logout()
-			})),
+				Text("Logout").OnClick(
+				func(ctx app.Context, e app.Event) {
+					uinfo.RemoveToken()
+					ctx.Reload()
+				})),
 		).Else(
 			dropdownItem(RouteLogin, "Login", "fas fa-sign-in-alt"),
 		),

@@ -1,14 +1,10 @@
-package regacc
+package register
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/fpawel/wasmhello/internal/ui/uinfo"
+	"github.com/fpawel/wasmhello/internal/ui/http"
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
-	"io"
-	"net/http"
 	"strings"
 )
 
@@ -18,8 +14,8 @@ func New() *Compo {
 
 type Compo struct {
 	app.Compo
-	input string
-	error *error
+	inputUser, pass string
+	error           *error
 }
 
 func (x *Compo) Render() app.UI {
@@ -34,24 +30,25 @@ func (x *Compo) Render() app.UI {
 				app.H4().Class("form-label").Text("Register your mining account"),
 				app.Div().
 					Body(
-						app.Label().For("inputAccountName").Text("Account name"),
+						app.Label().For("inputAccountName").Text("user name"),
 						app.Input().
 							Type("text").ID("inputAccountName").
 							Class("form-control").
 							Placeholder("The name of the account to register").
 							OnChange(func(ctx app.Context, e app.Event) {
 								fmt.Println(ctx.JSSrc().Get("value"))
-								x.input = ctx.JSSrc().Get("value").String()
+								x.inputUser = ctx.JSSrc().Get("value").String()
 							}),
 					),
-				app.Div().Class("d-flex flex-row-reverse").
-					Body(
+				app.If(x.pass == "",
+					app.Div().Class("d-flex flex-row-reverse").Body(
 						app.Button().
 							Class("btn btn-primary").ID("button-addon2").
 							Type("button").
 							Body(app.Text("Register")).
 							OnClick(x.registerAccount),
 					),
+				),
 				app.If(hasResult, app.If(resultOk, x.ok()).Else(x.err())),
 			),
 	)
@@ -61,10 +58,17 @@ func (x *Compo) ok() app.UI {
 	return app.Div().
 		Class("alert alert-success").
 		Body(
-			app.I().Class("fas fa-thumbs-up").Style("margin-right", "5px"),
-			app.Text("Account"),
-			app.B().Text(x.input).Style("margin", "5px"),
-			app.Text("registered successfully"),
+			app.P().Body(
+				app.I().Class("fas fa-thumbs-up").Style("margin-right", "5px"),
+				app.Text("user"),
+				app.B().Text(x.inputUser).Style("margin", "5px"),
+				app.Text("registered successfully"),
+			),
+			app.P().Body(
+				app.I().Class("fas fa-thumbs-up").Style("margin-right", "5px"),
+				app.Text("password"),
+				app.B().Text(x.pass).Style("margin", "5px"),
+			),
 		)
 }
 
@@ -82,37 +86,25 @@ func (x *Compo) err() app.UI {
 func (x *Compo) registerAccount(ctx app.Context, e app.Event) {
 	defer x.Update()
 
-	x.input = strings.TrimSpace(x.input)
-	if len(x.input) == 0 {
+	x.inputUser = strings.TrimSpace(x.inputUser)
+	if x.inputUser == "" {
 		x.error = new(error)
-		*x.error = errors.New("Please enter something")
+		*x.error = errors.New("please enter something")
 		return
 	}
-	loc := app.Window().Get("location")
-	host := loc.Get("protocol").String() + "//" + loc.Get("host").String() + "/api/register"
-	body, _ := json.Marshal(map[string]interface{}{
-		"account": x.input,
-	})
-	req, err := http.NewRequest("POST", host, bytes.NewBuffer(body))
-	req.Header.Add("js.fetch:mode", "cors")
+
+	var body struct {
+		Account string `json:"account"`
+	}
+	body.Account = x.inputUser
+	resp, err := http.C.R().
+		EnableTrace().
+		SetBody(&body).
+		Post("/api/register")
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer resp.Body.Close()
-	x.error = new(error)
-	b, _ := io.ReadAll(resp.Body)
-	if resp.StatusCode != 200 {
-		*x.error = errors.New(string(b))
-		return
-	}
-	r := uinfo.GetInput()
-	r.Register.Account = x.input
-	r.Register.Password = string(b)
-	uinfo.SetInput(r)
+	x.pass = string(resp.Body())
+	x.error = &err
 }

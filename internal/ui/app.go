@@ -5,41 +5,41 @@ import (
 	"github.com/fpawel/wasmhello/internal/js"
 	"github.com/fpawel/wasmhello/internal/ui/components/home"
 	"github.com/fpawel/wasmhello/internal/ui/components/login"
+	"github.com/fpawel/wasmhello/internal/ui/components/logout"
 	"github.com/fpawel/wasmhello/internal/ui/components/profile"
-	"github.com/fpawel/wasmhello/internal/ui/components/regacc"
+	"github.com/fpawel/wasmhello/internal/ui/components/register"
+	"github.com/fpawel/wasmhello/internal/ui/route"
+	"github.com/fpawel/wasmhello/internal/ui/state"
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"path/filepath"
-	"strings"
 )
 
 type App struct {
 	app.Compo
-	loggedIn bool
+	user string
 }
 
 func New() *App {
 	return &App{}
 }
 
-func getBaseRoute() Route {
-	locHash := js.LocationHash()
-	parts := strings.Split(locHash, "/")
-	if len(parts) == 0 || parts[0] == "#" {
-		return RouteHome
-	}
-	return Route(parts[0])
-}
-
 func (x *App) OnMount(ctx app.Context) {
-	//
+	ctx.
+		ObserveState(state.User).
+		OnChange(func() {
+			fmt.Println("app: user")
+		}).
+		Value(&x.user)
 }
 
-func (x *App) OnDismount(ctx app.Context) {
-	//
+func (x *App) OnNav(ctx app.Context) {
+
 }
 
 func (x *App) Render() app.UI {
 	var comp app.UI = &home.Compo{}
+
+	nav := newNavBar(x.user)
 
 	locHash := js.LocationHash()
 	if filepath.Ext(locHash) == ".md" {
@@ -49,24 +49,21 @@ func (x *App) Render() app.UI {
 		}
 		comp = renderMD(path)
 	} else {
-		switch getBaseRoute() {
-		case RouteProfile:
-			comp = &profile.Compo{}
-		case RouteRegAcc:
-			comp = regacc.New()
-		case RouteLogin:
+		switch route.Base() {
+		case route.Profile:
+			comp = profile.New()
+		case route.RegAcc:
+			comp = register.New()
+		case route.Login:
 			comp = login.New()
+		case route.Logout:
+			comp = logout.New()
 		}
 	}
 	return app.Section().Body(
-		&navBar{},
+		nav,
 		app.Div().Class("container").
 			Style("margin-top", "60px").
 			Body(comp),
 	)
-}
-
-func (x *App) OnNav(ctx app.Context) {
-	fmt.Println("OnNav")
-	//x.Update()
 }

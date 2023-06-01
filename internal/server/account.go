@@ -45,7 +45,7 @@ func registerAccount(w http.ResponseWriter, r *http.Request) {
 	muAccounts.Lock()
 	defer muAccounts.Unlock()
 	if _, f := accounts[input.Account]; f {
-		http.Error(w, "Account already exists", http.StatusBadRequest)
+		http.Error(w, "user already exists", http.StatusBadRequest)
 		return
 	}
 	pass := uuid.New().String()
@@ -75,19 +75,19 @@ func login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	var input datatype.AccPass
+	var input datatype.UserPass
 	if err := json.Unmarshal(b, &input); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	muAccounts.Lock()
 	defer muAccounts.Unlock()
-	u, f := accounts[input.Account]
+	u, f := accounts[input.User]
 	if !f {
-		http.Error(w, "Account doesn't exists", http.StatusBadRequest)
+		http.Error(w, "user doesn't exists", http.StatusBadRequest)
 		return
 	}
-	if u.Password != input.Password {
+	if u.Password != input.Pass {
 		http.Error(w, "Access denied", http.StatusForbidden)
 		return
 	}

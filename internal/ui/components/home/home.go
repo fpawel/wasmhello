@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/fpawel/wasmhello/internal/js"
 	"github.com/fpawel/wasmhello/internal/server/datatype"
+	"github.com/fpawel/wasmhello/internal/ui/route"
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
 	"io"
 	"net/http"
@@ -117,7 +118,7 @@ type pageNav struct {
 }
 
 func (x pageNav) render() app.HTMLLi {
-	link := app.A().Class("page-link").Href(fmt.Sprintf("#home/page/%d", x.page))
+	link := app.A().Class("page-link").Href(fmt.Sprintf("%s/page/%d", route.Home, x.page))
 	span := app.Span()
 	item := app.Li().
 		Style("width", "44px").

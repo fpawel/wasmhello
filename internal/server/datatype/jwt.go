@@ -15,26 +15,26 @@ var (
 // Create a struct that will be encoded to a JWT.
 // We add jwt.StandardClaims as an embedded type, to provide fields like expiry time
 type accClaims struct {
-	AccPass
+	UserPass
 	jwt.StandardClaims
 }
 
-func JwtParse(tokenString string) (AccPass, error) {
+func JwtParse(tokenString string) (UserPass, error) {
 
 	claims := new(accClaims)
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
 	})
 	if err != nil {
-		return AccPass{}, err
+		return UserPass{}, err
 	}
 	if !token.Valid {
-		return AccPass{}, ErrUnauthorized
+		return UserPass{}, ErrUnauthorized
 	}
-	return claims.AccPass, nil
+	return claims.UserPass, nil
 }
 
-func JwtTokenize(accPass AccPass) (string, error) {
+func JwtTokenize(accPass UserPass) (string, error) {
 	claims := &accClaims{
 		accPass,
 		jwt.StandardClaims{

@@ -1,34 +1,23 @@
 package login
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/fpawel/wasmhello/internal/server/datatype"
-	"github.com/fpawel/wasmhello/internal/ui/uinfo"
+	"github.com/fpawel/wasmhello/internal/ui/http"
+	"github.com/fpawel/wasmhello/internal/ui/route"
+	"github.com/fpawel/wasmhello/internal/ui/state"
 	"github.com/maxence-charriere/go-app/v9/pkg/app"
-	"io"
-	"net/http"
 	"strings"
 )
 
 func New() *Compo {
-	x := &Compo{
-		input: uinfo.AccPass(),
-	}
-	if len(x.input.Account) == 0 {
-		x.input = uinfo.GetInput().Login
-	}
-	if len(x.input.Account) == 0 {
-		x.input = uinfo.GetInput().Register
-	}
-	return x
+	return &Compo{}
 }
 
 type Compo struct {
 	app.Compo
-	input datatype.AccPass
+	input datatype.UserPass
 	error *error
 }
 
@@ -44,28 +33,28 @@ func (x *Compo) Render() app.UI {
 				app.H4().Class("form-label").Text("Sign in with your credentials"),
 				app.Div().
 					Body(
-						app.Label().For("inputAccountName").Text("Account name"),
+						app.Label().For("inputAccountName").Text("user name"),
 						app.Input().
 							ID("inputAccountName").
 							Type("text").
 							Class("form-control").
 							Placeholder("The name of the account").
-							Value(x.input.Account).
+							Value(x.input.User).
 							OnChange(func(ctx app.Context, e app.Event) {
-								x.input.Account = ctx.JSSrc().Get("value").String()
+								x.input.User = ctx.JSSrc().Get("value").String()
 							}),
 					),
 				app.Div().
 					Body(
-						app.Label().For("inputPassword").Text("Password"),
+						app.Label().For("inputPassword").Text("Pass"),
 						app.Input().
 							ID("inputPassword").
 							Type("password").
 							Class("form-control").
-							Placeholder("Password").
-							Value(x.input.Password).
+							Placeholder("Pass").
+							Value(x.input.Pass).
 							OnChange(func(ctx app.Context, e app.Event) {
-								x.input.Password = ctx.JSSrc().Get("value").String()
+								x.input.Pass = ctx.JSSrc().Get("value").String()
 							}),
 					),
 				app.Div().Class("d-flex flex-row-reverse").
@@ -86,8 +75,8 @@ func (x *Compo) ok() app.UI {
 		Class("alert alert-success").
 		Body(
 			app.I().Class("fas fa-thumbs-up").Style("margin-right", "5px"),
-			app.Text("Account"),
-			app.B().Text(x.input.Account).Style("margin", "5px"),
+			app.Text("user"),
+			app.B().Text(x.input.User).Style("margin", "5px"),
 			app.Text("logged in successfully"),
 		)
 }
@@ -104,47 +93,39 @@ func (x *Compo) err() app.UI {
 }
 
 func (x *Compo) login(ctx app.Context, e app.Event) {
-	x.input.Account = strings.TrimSpace(x.input.Account)
-	x.input.Password = strings.TrimSpace(x.input.Password)
+	x.input.User = strings.TrimSpace(x.input.User)
+	x.input.Pass = strings.TrimSpace(x.input.Pass)
 
-	if len(x.input.Account) == 0 {
+	if len(x.input.User) == 0 {
 		x.error = new(error)
 		*x.error = errors.New("please enter account")
 		return
 	}
 
-	if len(x.input.Password) == 0 {
+	if len(x.input.Pass) == 0 {
 		x.error = new(error)
 		*x.error = errors.New("please enter password")
 		return
 	}
-
-	loc := app.Window().Get("location")
-	host := loc.Get("protocol").String() + "//" + loc.Get("host").String() + "/api/login"
-	body, _ := json.Marshal(x.input)
-	req, err := http.NewRequest("POST", host, bytes.NewBuffer(body))
-	req.Header.Add("js.fetch:mode", "cors")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	defer resp.Body.Close()
-	x.error = new(error)
-	b, err := io.ReadAll(resp.Body)
+	r, err := http.C.R().SetBody(x.input).
+		//SetHeader("js.fetch:mode", "cors").
+		Post("/api/login")
 	if err != nil {
 		x.error = &err
+		return
 	}
-	response := string(b)
+	if r.StatusCode() != 200 {
+		err := fmt.Errorf("%s: %s", r.Body(), r.Status())
+		x.error = &err
+		return
+	}
 
-	if resp.StatusCode != 200 {
-		*x.error = errors.New(response)
-	} else {
-		uinfo.SetToken(response)
-		ctx.Reload()
+	v, err := datatype.JwtParse(r.String())
+	if err != nil {
+		x.error = &err
+		return
 	}
+
+	ctx.SetState(state.User, v.User, app.Persist)
+	ctx.Navigate(route.Home)
 }

@@ -76,20 +76,6 @@ func (x *navBarCompo) Render() app.UI {
 		)
 }
 
-func icon(class string) app.UI {
-	return app.I().Class(class).Style("margin-right", "5px")
-}
-
-//func dropdownMenuItemShowModal(text string) app.UI  {
-//	return app.A().
-//		Class("dropdown-item").
-//		Href(jsutils.LocationHash()).
-//		DataSet("bs-toggle", "modal").
-//		DataSet("bs-target", "#"+idAppModalDialog).Body(app.Text(text))
-//}
-
 const (
-	idAppModalDialog     = "appModalDialog"
 	idNavbarNavAltMarkup = "navbarNavAltMarkup"
-	idNavbarDropdown     = "navbarDropdown"
 )

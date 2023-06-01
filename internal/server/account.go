@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/fpawel/wasmhello/internal/server/datatype"
 	"github.com/google/uuid"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"sync"
@@ -29,8 +29,10 @@ func registerAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Read body
-	b, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
+	b, err := io.ReadAll(r.Body)
+	defer func() {
+		_ = r.Body.Close()
+	}()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -69,8 +71,10 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Read body
-	b, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
+	b, err := io.ReadAll(r.Body)
+	defer func() {
+		_ = r.Body.Close()
+	}()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

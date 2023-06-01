@@ -32,10 +32,6 @@ func (x *App) OnMount(ctx app.Context) {
 		Value(&x.user)
 }
 
-func (x *App) OnNav(ctx app.Context) {
-
-}
-
 func (x *App) Render() app.UI {
 	var comp app.UI = &home.Compo{}
 

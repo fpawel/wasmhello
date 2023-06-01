@@ -83,7 +83,7 @@ func (x *Compo) err() app.UI {
 			app.Text((*x.error).Error()))
 }
 
-func (x *Compo) registerAccount(ctx app.Context, e app.Event) {
+func (x *Compo) registerAccount(_ app.Context, _ app.Event) {
 	defer x.Update()
 
 	x.inputUser = strings.TrimSpace(x.inputUser)
